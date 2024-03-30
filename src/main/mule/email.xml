@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b843078a-653b-4393-b144-a4601927e525" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="41093868-3854-4be3-922c-d63633b8455a" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="sivannarayanabodapati" password="zttr pjnv dxhp tlyi" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<flow name="emailFlow" doc:id="a353b993-3184-4b6a-81b9-2eec5e084ea3" >
+		<http:listener doc:name="Listener" doc:id="637800b5-f807-44ec-b1c2-4a1a698c926b" config-ref="HTTP_Listener_config" path="/sendemail"/>
+		<ee:transform doc:name="Transform Message" doc:id="9815740c-3fab-431f-bbce-bbf0a07b6c84" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+{
+	"name":"siva",
+	"email":"siva@gmail.com"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="5a7e841a-5d25-4216-8985-9b77639f2cb1" config-ref="Email_SMTP" fromAddress="sivannarayanabodapati@gmail.com" subject="emailtest">
+			<email:to-addresses >
+				<email:to-address value="sivannarayanabodapati@gmai.com" />
+			</email:to-addresses>
+			<email:body contentType="text/plain" >
+				<email:content ><![CDATA["csv attached"]]></email:content>
+			</email:body>
+			<email:attachments ><![CDATA[#[{
+      'samplefile' : payload
+}]]]></email:attachments>
+		</email:send>
+	</flow>
+</mule>
